@@ -1,10 +1,14 @@
 {
-  "name": "discord-roblox-bot",
+  "name": "discord-bot",
   "version": "1.0.0",
-  "main": "bot.js",
+  "description": "A Discord bot created by OfficiallyMissing (@antoniyt120)!",
+  "main": "index.js",   // Make sure this points to the correct entry file
+  "scripts": {
+    "start": "node index.js"  // This tells Glitch to run `index.js` using Node.js
+  },
   "dependencies": {
-    "discord.js": "^14.0.0",
-    "axios": "^1.0.0",
-    "express": "^4.18.2"
+    "axios": "^1.7.9",
+    "discord.js": "^14.16.3",
+    "express": "^4.21.2"
   }
 }

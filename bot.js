@@ -1,51 +1,75 @@
-// Import necessary libraries
-const { Client, GatewayIntentBits } = require('discord.js');
-const axios = require('axios');
+const { Client, Intents } = require('discord.js');
+const axios = require('axios');  // To make API calls to Roblox
+require('dotenv').config(); // Import dotenv to load environment variables
 
-// Get the environment variables from Glitch's Secrets
-const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
-const BLOXLINK_API_KEY = process.env.BLOXLINK_API_KEY;
+const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
-// Create a new Discord client with necessary intents
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.MessageContent
-  ]
-});
+const DISCORD_TOKEN = process.env.DISCORD_TOKEN;  // Discord bot token
+const BLOXLINK_API_KEY = process.env.BLOXLINK_API_KEY;  // Bloxlink API key (or Roblox API key)
 
-// Bot startup event
-client.once('ready', () => {
+client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-// Command to verify Roblox account via Bloxlink and assign a role
-client.on('messageCreate', async (message) => {
-  if (message.content.startsWith('!roblox_verify')) {
-    const discordUserId = message.content.split(' ')[1];  // Get Discord user ID
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isCommand()) return;
 
-    if (!discordUserId) {
-      return message.reply('Please provide a Discord user ID.');
+  const { commandName } = interaction;
+
+  // Handling the 'ping' command
+  if (commandName === 'ping') {
+    await interaction.reply('Pong!');
+  }
+
+  // Handling the 'ban' command
+  if (commandName === 'ban') {
+    const username = interaction.options.getString('username');
+    const response = await banRobloxUser(username, false);  // Temporary ban
+    if (response.success) {
+      await interaction.reply(`${username} has been banned from Roblox.`);
+    } else {
+      await interaction.reply(`Failed to ban ${username}.`);
     }
+  }
 
-    // Verify the Roblox account linked to the Discord ID using Bloxlink API
-    const url = `https://api.bloxlink.com/v1/discord/${discordUserId}`;
-    try {
-      const response = await axios.get(url, {
-        headers: { 'Authorization': `Bearer ${BLOXLINK_API_KEY}` }
-      });
-
-      if (response.data.roblox_username) {
-        message.reply(`The Discord user is linked to Roblox user: ${response.data.roblox_username}`);
-      } else {
-        message.reply('No Roblox account linked to this Discord user.');
-      }
-    } catch (error) {
-      message.reply('Failed to verify Roblox account.');
+  // Handling the 'permaban' command
+  if (commandName === 'permaban') {
+    const username = interaction.options.getString('username');
+    const response = await banRobloxUser(username, true);  // Permanent ban
+    if (response.success) {
+      await interaction.reply(`${username} has been permanently banned from Roblox.`);
+    } else {
+      await interaction.reply(`Failed to permanently ban ${username}.`);
     }
   }
 });
 
-// Log in to Discord with the bot token
+// Function to ban a Roblox user
+async function banRobloxUser(username, permaban = false) {
+  try {
+    // Set the URL based on the ban type (temporary or permanent)
+    const url = permaban 
+      ? `https://api.roblox.com/users/${username}/ban`  // Permanent ban endpoint (hypothetical)
+      : `https://api.roblox.com/users/${username}/ban-temporarily`;  // Temporary ban endpoint (hypothetical)
+
+    // Set up the request headers with your Roblox API Key (for authentication)
+    const headers = {
+      'Authorization': `Bearer ${BLOXLINK_API_KEY}`,
+    };
+
+    const response = await axios.post(url, {}, { headers });
+
+    if (response.status === 200) {
+      return { success: true };
+    } else {
+      return { success: false };
+    }
+  } catch (error) {
+    console.error(`Error banning user: ${error}`);
+    return { success: false };
+  }
+}
+
+// Log the bot in using the Discord Token from environment variables
 client.login(DISCORD_TOKEN);
+

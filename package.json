@@ -1,19 +1,13 @@
 {
   "name": "discord-roblox-bot",
   "version": "1.0.0",
-  "description": "Discord bot created by OfficiallyMissing (@antoniyt120)!",
+  "description": "A bot for Discord and Roblox created by OfficiallyMissing (@antoniyt120)!",
   "main": "bot.js",
-  },
   "scripts": {
     "start": "node bot.js"
   },
   "dependencies": {
-    "discord.js": "^14.16.3"
-  },
-  "devDependencies": {
-    "eslint": "^8.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/costblox/discord-roblox-bot.git"
+    "axios": "^0.21.1",
+    "discord.js": "^14.0.0"
   }
+}

@@ -1,12 +1,28 @@
 const { Client, Intents } = require('discord.js');
 const axios = require('axios');  // To make API calls to Roblox
-require('dotenv').config(); // Import dotenv to load environment variables
+const express = require('express'); // Import express to keep the bot alive
+require('dotenv').config(); // Load environment variables
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;  // Discord bot token
 const BLOXLINK_API_KEY = process.env.BLOXLINK_API_KEY;  // Bloxlink API key (or Roblox API key)
 
+const app = express();
+
+// Use Render's environment variable for port binding
+const port = process.env.PORT || 3000;  // Ensure we're binding to the correct port
+
+// Keep the bot alive with a simple HTTP server
+app.get('/', (req, res) => {
+  res.send('Bot is running!');
+});
+
+app.listen(port, () => {
+  console.log(`HTTP server is running on port ${port}`);
+});
+
+// Discord bot logic
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
@@ -47,12 +63,10 @@ client.on('interactionCreate', async interaction => {
 // Function to ban a Roblox user
 async function banRobloxUser(username, permaban = false) {
   try {
-    // Set the URL based on the ban type (temporary or permanent)
     const url = permaban 
-      ? `https://api.roblox.com/users/${username}/ban`  // Permanent ban endpoint (hypothetical)
-      : `https://api.roblox.com/users/${username}/ban-temporarily`;  // Temporary ban endpoint (hypothetical)
+      ? `https://api.roblox.com/users/${username}/ban`  
+      : `https://api.roblox.com/users/${username}/ban-temporarily`;  
 
-    // Set up the request headers with your Roblox API Key (for authentication)
     const headers = {
       'Authorization': `Bearer ${BLOXLINK_API_KEY}`,
     };
@@ -61,15 +75,12 @@ async function banRobloxUser(username, permaban = false) {
 
     if (response.status === 200) {
       return { success: true };
-    } else {
-      return { success: false };
     }
+    return { success: false };
   } catch (error) {
-    console.error(`Error banning user: ${error}`);
+    console.error('Error banning Roblox user:', error);
     return { success: false };
   }
 }
 
-// Log the bot in using the Discord Token from environment variables
 client.login(DISCORD_TOKEN);
-

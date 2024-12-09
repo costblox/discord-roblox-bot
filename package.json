@@ -10,8 +10,7 @@
     "start": "node bot.js"
   },
   "dependencies": {
-    "discord.js": "^13.6.0",
-    "other-package": "version"
+    "discord.js": "^13.6.0"
   },
   "devDependencies": {
     "eslint": "^8.0.0"
